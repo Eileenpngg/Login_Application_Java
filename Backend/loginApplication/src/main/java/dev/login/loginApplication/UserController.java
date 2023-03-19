@@ -35,5 +35,13 @@ public class UserController {
         userService.createNewUser(user);
         return new ResponseEntity<User>(user, HttpStatus.CREATED);
     }
+
+//    @GetMapping("/login")
+//    //request body would be converted to a map of a key is string, value is string
+//    public ResponseEntity<User> login(@RequestBody String username, String password){
+//        User user= userService.userLogin(username, password);
+////        return new ResponseEntity<User>(username, HttpStatus.OK);
+//    }
 }
 
+//        ResponseEntity<User>(userService.createNewUser(payload.get("userName"), payload.get("name"), payload.get("password"), payload.get(manager))
