@@ -31,17 +31,16 @@ public class UserController {
     }
     @PostMapping("/register")
     //request body would be converted to a map of a key is string, value is string
-    public ResponseEntity<User> addNewUser(@RequestBody User user){
+    public ResponseEntity<String> addNewUser(@RequestBody User user){
         userService.createNewUser(user);
-        return new ResponseEntity<User>(user, HttpStatus.CREATED);
+        return new ResponseEntity<String>(user.getPassword(), HttpStatus.CREATED);
     }
 
-//    @GetMapping("/login")
-//    //request body would be converted to a map of a key is string, value is string
-//    public ResponseEntity<User> login(@RequestBody String username, String password){
-//        User user= userService.userLogin(username, password);
-////        return new ResponseEntity<User>(username, HttpStatus.OK);
-//    }
+    @GetMapping("/login")
+    //request body would be converted to a map of a key is string, value is string
+    public ResponseEntity<String> login(@RequestBody User user){
+        return new ResponseEntity<>(userService.authenticate(user), HttpStatus.OK);
+    }
 }
 
 //        ResponseEntity<User>(userService.createNewUser(payload.get("userName"), payload.get("name"), payload.get("password"), payload.get(manager))
