@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication; //used to l
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
-@EnableAutoConfiguration(exclude = {org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class})
+@EnableAutoConfiguration
 @RestController
 public class LoginApplication {
 

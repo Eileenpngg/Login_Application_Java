@@ -1,4 +1,4 @@
-package dev.login.loginApplication;
+package dev.login.loginApplication.users;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;

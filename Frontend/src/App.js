@@ -6,7 +6,7 @@ import WelcomePage from './WelcomePage';
 function App() {
   return (
     <div className="App">
-      <WelcomePage/>
+      <Login/>
     </div>
   );
 }
