@@ -9,7 +9,10 @@ import dev.login.loginApplication.users.User;
 import dev.login.loginApplication.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,55 +44,52 @@ public class AuthenticationService {
                 .build();
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
-        saveUserToken(savedUser, jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate( //authentication manager will throw exception will be thrown is username and password is not correct
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        System.out.println(authenticationManager.authenticate( //authentication manager will throw exception will be thrown is username and password is not correct
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        ));
-        var user = userRepository.findUserByUsername(request.getUsername())
-                .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
-
+        try {
+            authenticationManager.authenticate( //authentication manager will throw exception will be thrown is username and password is not correct
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+            var user = userRepository.findUserByUsername(request.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+            var jwtToken = jwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        } catch  (BadCredentialsException ex) {
+            return AuthenticationResponse.builder()
+                    .token("wrong")
+                    .build();
+        }
     }
 
-    private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
-    }
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
-    }
+
+//    private void saveUserToken(User user, String jwtToken) {
+//        var token = Token.builder()
+//                .user(user)
+//                .token(jwtToken)
+//                .tokenType(TokenType.BEARER)
+//                .expired(false)
+//                .revoked(false)
+//                .build();
+//        tokenRepository.save(token);
+//    }
+//    private void revokeAllUserTokens(User user) {
+//        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+//        if (validUserTokens.isEmpty())
+//            return;
+//        validUserTokens.forEach(token -> {
+//            token.setExpired(true);
+//            token.setRevoked(true);
+//        });
+//        tokenRepository.saveAll(validUserTokens);
+//    }
 };
 
 

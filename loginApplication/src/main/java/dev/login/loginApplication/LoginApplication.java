@@ -13,8 +13,4 @@ public class LoginApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LoginApplication.class, args);
 	}
-	@GetMapping("/") //lets framework know that the apiroot is a get endpoint
-	public String apiRoot(){
-		return "Hello World!";
-	}
 }

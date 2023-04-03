@@ -30,6 +30,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests()//all application has white list, open to everyone
                 .requestMatchers("/api/users/auth/**")//accepts a list of patterns //allow all methods because all the users api requires authentication
                 .permitAll()
+                .requestMatchers("/api/secretPage")
+                .hasRole("MANAGER")
                 .anyRequest()//all the other request will be authenticated
                 .authenticated()
                 .and()//configure session management, session should be stateless to ensure each request will be authenticated

@@ -20,45 +20,7 @@ public class JwtService {
     //jwtToken: json web token consisting of headers , payload and signature
     //headers: usually is the type of jwt and the sign in alg e.g HS256
     //payload is the claims about the entity(User), e.g name authorities etc. , claims can be registered, private, public
-    public String extractUsername(String jwtToken) {
-        return extractClaims(jwtToken, Claims::getSubject); //getSubject is the username
-    }
 
-
-    //!!!!!!!!!!!!!!READDDDD UPPP
-    public <T> T extractClaims(String jwtToken, Function<Claims, T> claimsResolver){
-        final Claims claims= extractAllClaims(jwtToken);
-        return claimsResolver.apply(claims);
-    }
-
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(), userDetails);
-    }
-
-    public String generateToken(
-            Map<String, Object> claims, //anything i want to pass into my token sucha s authorities , name
-            UserDetails userDetails
-    ){
-        return Jwts
-                .builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+ 1000 *60*24))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
-
-    }
-
-    //userDetails is required toc heck if the token belongs to the user
-    public boolean isTokenValid(String jwtToken, UserDetails userDetails){
-        final String username= extractUsername(jwtToken);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(jwtToken);
-
-    }
-    public boolean isTokenExpired(String jwtToken){
-        return extractExpiration(jwtToken).before(new Date()); //before todays date
-    };
 
     private Date extractExpiration(String jwtToken){
         return extractClaims(jwtToken, Claims::getExpiration);
@@ -79,6 +41,45 @@ public class JwtService {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes); //an algorithim in the jwt headers
     }
+
+    public String extractUsername(String jwtToken) {
+        return extractClaims(jwtToken, Claims::getSubject); //getSubject is the username, gets it from the payload
+    }
+
+
+    //!!!!!!!!!!!!!!READDDDD UPPP
+    public <T> T extractClaims(String jwtToken, Function<Claims, T> claimsResolver){
+        final Claims claims= extractAllClaims(jwtToken);
+        return claimsResolver.apply(claims);
+    }
+
+    public String generateToken(UserDetails userDetails){
+        Map<String, Object> claims= new HashMap<>();
+        claims.put("Authorities", userDetails.getAuthorities());
+        return generateToken(claims, userDetails);
+    }
+
+    public String generateToken(Map<String, Object> claims, UserDetails userDetails){//anything i want to pass into my token sucha s authorities , name
+        return Jwts
+                .builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+ 1000 *60*24))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+
+    }
+
+    //userDetails is required toc heck if the token belongs to the user
+    public boolean isTokenValid(String jwtToken, UserDetails userDetails){
+        final String username= extractUsername(jwtToken);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(jwtToken);
+
+    }
+    public boolean isTokenExpired(String jwtToken){
+        return extractExpiration(jwtToken).before(new Date()); //before todays date
+    };
 
 
 }
