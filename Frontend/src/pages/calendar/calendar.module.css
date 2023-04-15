@@ -1,8 +1,10 @@
 .calendar{
     width: 1000px;
-    height: 1000px;
+    height: 1100px;
     background-color: grey;
     padding: 30px;
+    margin: 20px;
+    border-radius: 20px;
 }
 
 .row{
@@ -13,9 +15,9 @@
 .card{
 background-color: white;
 height: 200px;
-width: 200px;
+width: 250px;
 margin: 10px;
-border-radius: 10px;
+border-radius: 5px;
 display: flex;
 justify-content: center;
 align-items:center;
